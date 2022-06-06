@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <math.h>
-#define MAXSIZE   254
+
+#define MEMORY 256
 #define DIMENTION 15
 #define NUMOFFILE 100
 #define FNAME_OUTPUT "./output001.txt"
@@ -10,19 +11,18 @@ typedef struct {
     char name[20];
     char onso[50];
     int  flame;
-    double mcepdata[MAXSIZE][DIMENTION];
+    double mcepdata[MEMORY][DIMENTION];
 } mcepdata_t;
 
-int main(void)
-{
+int main(void){
 	int  h0, h, i, j, k;
 	FILE *fp_temp, *fp_miti, *fp_output;
 	mcepdata_t city_temp, city_miti; //テンプレートのデータと未知入力データ
 	char ch0[200]; 
-	double d[MAXSIZE][MAXSIZE];      //局所距離
-	double g[MAXSIZE][MAXSIZE];      //累積距離
-	double tangokankyori[NUMOFFILE]; //単語間距離
-	double tangokankyori_min; 
+	double d[MEMORY][MEMORY];      //局所距離
+	double g[MEMORY][MEMORY];      //累積距離
+	double distance[NUMOFFILE]; //単語間距離
+	double distance_min; 
 	int num_matchfname = 0;
 	int count = 0;
 	int TEMP_NUM, MITI_NUM;
@@ -32,14 +32,11 @@ int main(void)
 	scanf("%03d", &TEMP_NUM);
 	printf("city0");
 	scanf("%03d", &MITI_NUM);
-
-       	printf("city%03dとcity%03dの認識実験を開始します。\n", TEMP_NUM, MITI_NUM);
+	printf("city%03dとcity%03dの認識実験を開始します。\n", TEMP_NUM, MITI_NUM);
 
 
 
 	for (h0 = 0; h0 < NUMOFFILE; h0++) {
-
-
 		sprintf(ch0, "./city%03d/city%03d_%03d.txt",TEMP_NUM, TEMP_NUM, h0 + 1);
 	
 		if ((fp_temp = fopen(ch0, "r")) == NULL) {
@@ -53,8 +50,8 @@ int main(void)
 		city_temp.flame = atoi(ch0);
 		
 		for (i = 0; i < city_temp.flame; i++) {
-            for (j = 0; j < DIMENTION; j++) {
-			fscanf(fp_temp, "%lf", &city_temp.mcepdata[i][j]);
+    	for (j = 0; j < DIMENTION; j++) {
+				fscanf(fp_temp, "%lf", &city_temp.mcepdata[i][j]);
 			}
 		}
 
@@ -79,13 +76,12 @@ int main(void)
 
 			for (i = 0; i < city_temp.flame; i++) {
 				for (j = 0; j < city_miti.flame; j++) {
-                    d[i][j] = 0;
+        	d[i][j] = 0;
 					for (int k = 0; k < DIMENTION; k++) {
 						//printf("%f\n", kyokusyokyori);
 						d[i][j] += (city_temp.mcepdata[i][k] - city_miti.mcepdata[j][k]) * (city_temp.mcepdata[i][k] - city_miti.mcepdata[j][k]); 
 					}
-                    sqrtl(d[i][j]);
-					
+          sqrtl(d[i][j]);
 				}
 			}
 	
@@ -111,18 +107,14 @@ int main(void)
 					}
 				}
 			}
-
-		
-			tangokankyori[h] = g[city_temp.flame - 1][city_miti.flame - 1] / (city_temp.flame + city_miti.flame);
-				
-		
+			distance[h] = g[city_temp.flame - 1][city_miti.flame - 1] / (city_temp.flame + city_miti.flame);
 			fclose(fp_miti);
 		}
 
-        tangokankyori_min = tangokankyori[0];
-        num_matchfname = 0;
+      distance_min = distance[0];
+      num_matchfname = 0;
 		for (h = 1; h < NUMOFFILE; h++) {
-			if (tangokankyori_min > tangokankyori[h] ) {
+			if (distance_min > distance[h] ) {
 				tangokankyori_min = tangokankyori[h];
 				num_matchfname = h;
 			}
@@ -137,11 +129,11 @@ int main(void)
 		}
 
 		if (num_matchfname != h0 ) {
-            printf("----------Result NOT Matchng----------\n");
-            printf("city_temp     : city%03d/city%03d_%03d.txt\n", TEMP_NUM, TEMP_NUM, h0 + 1);
-            printf("city_miti     : city%03d/city%03d_%03d.txt\n", MITI_NUM, MITI_NUM, num_matchfname + 1);
-            printf("tangokankyori : %f\n", tangokankyori_min);
-        }
+   		printf("----------Result NOT Matchng----------\n");
+     	printf("city_temp     : city%03d/city%03d_%03d.txt\n", TEMP_NUM, TEMP_NUM, h0 + 1);
+    	printf("city_miti     : city%03d/city%03d_%03d.txt\n", MITI_NUM, MITI_NUM, num_matchfname + 1);
+      printf("Between words : %f\n", distance_min);
+    }
 
 	}
 
@@ -153,7 +145,7 @@ int main(void)
 	}
 
 	fprintf(fp_output, "正答率%d%%です。\n", count);
-    printf("\nファイルを作成しました。\n");
+  printf("\nファイルを作成しました。\n");
 	printf("正答率 %d%% です。\n", count); 
 
 	fclose(fp_output);
