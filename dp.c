@@ -23,9 +23,9 @@ void print(int i1, int i2, int m, int n, double d){
 
   fprintf(fp, "city_temp : city%3d/city%3d_%3d.txt\n", m, m, i1 + 1);
   fprintf(fp, "city_miti : city%3d/city%3d_%3d.txt\n", n, n, i2 + 1);
-	printf("Between words : %f\n", d);
+	printf("\nBetween words : %f\n", d);
   fprintf(fp, "Between words : %f\n\n", d);
-	printf("...Roading now...\n");
+	printf("-------------------------------");
 	fclose(fp);
 }
 
@@ -38,7 +38,7 @@ void scan(int* i, int*m){
 }
 
 int main(void){
-	int  h0, h, i, j, k;
+	int  h0, h, i, j, k, x = 0;
 	FILE *fp_temp, *fp_miti;
 	mcepdata_t city_temp, city_miti;
 	char ch0[200]; 
@@ -146,6 +146,6 @@ int main(void){
     	print(h0,num_matchfname, TEMP_NUM, MITI_NUM, distance_min);
 		}
 	}
-	printf("正答率 %d%%\n", count); 
+	printf("\n正答率 %d%%\n", count); 
 	return 0;
 }
